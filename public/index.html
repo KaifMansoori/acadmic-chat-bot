@@ -1,0 +1,165 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Academic Advisor — AI Chatbot</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link
+    href="https://fonts.googleapis.com/css2?family=Sora:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap"
+    rel="stylesheet" />
+  <link rel="stylesheet" href="style.css" />
+</head>
+
+<body>
+  <!-- Background blobs -->
+  <div class="bg-blob blob-1"></div>
+  <div class="bg-blob blob-2"></div>
+  <div class="bg-blob blob-3"></div>
+
+  <div class="app-wrapper">
+    <!-- ── Sidebar ── -->
+    <aside class="sidebar">
+      <div class="sidebar-header">
+        <div class="logo">
+          <span class="logo-icon">🎓</span>
+          <div>
+            <div class="logo-title">AcadBot</div>
+            <div class="logo-sub">AI Academic Advisor</div>
+          </div>
+        </div>
+      </div>
+
+      <nav class="sidebar-nav">
+        <button class="nav-btn active" onclick="showView('chat')">
+          <span>💬</span> Chat Advisor
+        </button>
+        <button class="nav-btn" onclick="showView('appointment')">
+          <span>📅</span> Book Appointment
+        </button>
+        <button class="nav-btn" onclick="showView('courses')">
+          <span>📚</span> Quick Topics
+        </button>
+      </nav>
+
+      <div class="sidebar-footer">
+        <div class="status-dot"></div>
+        <span>AI Online</span>
+      </div>
+    </aside>
+
+    <!-- ── Main Content ── -->
+    <main class="main-content">
+      <!-- CHAT VIEW -->
+      <div id="view-chat" class="view active">
+        <div class="view-header">
+          <div>
+            <h1>Academic Advisor</h1>
+            <p>Ask anything about courses, careers, or college life</p>
+          </div>
+          <button class="clear-btn" onclick="clearChat()">Clear Chat</button>
+        </div>
+
+        <div class="chat-container">
+          <div class="chat-messages" id="chat-messages">
+            <!-- Welcome message -->
+            <div class="message bot-message">
+              <div class="avatar bot-avatar">🤖</div>
+              <div class="bubble">
+                <p>Hello, What is your name ?</p>
+              </div>
+            </div>
+          </div>
+
+          <div class="quick-chips" id="quick-chips">
+            <button class="chip" onclick="sendQuick('Hi, I am ')">👋 Hi, I am...</button>
+            <button class="chip" onclick="sendQuick('What courses should I take for AI/ML?')">🤖 AI/ML Courses</button>
+            <button class="chip" onclick="sendQuick('How to prepare for campus placements?')">💼 Placements</button>
+            <button class="chip" onclick="sendQuick('Give me study tips for exams')">📝 Study Tips</button>
+            <button class="chip" onclick="sendQuick('book appointment')">📅 Book Appointment</button>
+          </div>
+
+          <div class="chat-input-area">
+            <textarea id="user-input" placeholder="Type your question here..." rows="1" onkeydown="handleKey(event)"
+              oninput="autoResize(this)"></textarea>
+            <button class="send-btn" onclick="sendMessage()" id="send-btn">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+                <line x1="22" y1="2" x2="11" y2="13"></line>
+                <polygon points="22 2 15 22 11 13 2 9 22 2"></polygon>
+              </svg>
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- APPOINTMENT VIEW -->
+      <div id="view-appointment" class="view">
+        <div class="view-header">
+          <div>
+            <h1>Book Appointment</h1>
+            <p>Schedule a meeting with your faculty advisor</p>
+          </div>
+        </div>
+
+        <div class="calendly-container">
+          <!-- Calendly inline widget begin -->
+          <div class="calendly-inline-widget" data-url="https://calendly.com/mhkaif7411/30min"
+            style="min-width:320px;height:630px;"></div>
+          <script type="text/javascript" src="https://assets.calendly.com/assets/external/widget.js" async></script>
+          <!-- Calendly inline widget end -->
+        </div>
+      </div>
+
+      <!-- QUICK TOPICS VIEW -->
+      <div id="view-courses" class="view">
+        <div class="view-header">
+          <div>
+            <h1>Quick Topics</h1>
+            <p>Click any topic to get instant AI guidance</p>
+          </div>
+        </div>
+
+        <div class="topics-grid">
+          <div class="topic-card" onclick="askTopic('What are the best courses for Web Development career?')">
+            <span class="topic-icon">🌐</span>
+            <h3>Web Development</h3>
+            <p>Frontend, backend, full-stack paths</p>
+          </div>
+          <div class="topic-card"
+            onclick="askTopic('What courses should I study for Artificial Intelligence and Machine Learning?')">
+            <span class="topic-icon">🤖</span>
+            <h3>AI & Machine Learning</h3>
+            <p>Data science, deep learning, NLP</p>
+          </div>
+          <div class="topic-card" onclick="askTopic('How to prepare for campus placements and technical interviews?')">
+            <span class="topic-icon">💼</span>
+            <h3>Campus Placements</h3>
+            <p>Interview prep, resume, aptitude</p>
+          </div>
+          <div class="topic-card" onclick="askTopic('What is the best way to prepare for semester exams?')">
+            <span class="topic-icon">📝</span>
+            <h3>Exam Preparation</h3>
+            <p>Study plans, revision tips, time management</p>
+          </div>
+          <div class="topic-card" onclick="askTopic('How to find and apply for good internships as a student?')">
+            <span class="topic-icon">🚀</span>
+            <h3>Internships</h3>
+            <p>Finding, applying, and succeeding</p>
+          </div>
+          <div class="topic-card"
+            onclick="askTopic('What are career options after completing a Computer Science degree?')">
+            <span class="topic-icon">🎯</span>
+            <h3>Career Paths</h3>
+            <p>Options after graduation, higher studies</p>
+          </div>
+        </div>
+      </div>
+    </main>
+  </div>
+
+  <script src="script.js"></script>
+</body>
+
+</html>

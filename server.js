@@ -130,6 +130,11 @@ app.get("/api/appointments", (req, res) => {
 
 // MODULE: Server Initialization
 const PORT = process.env.PORT || 3000;
-app.listen(PORT, () => {
-  console.log(`✅ Academic Advisor Server active on port ${PORT}`);
-});
+if (process.env.NODE_ENV !== 'production') {
+  app.listen(PORT, () => {
+    console.log(`✅ Academic Advisor Server active on port ${PORT}`);
+  });
+}
+
+module.exports = app;
+

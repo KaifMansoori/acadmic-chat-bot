@@ -1,24 +1,27 @@
-// ── State ──────────────────────────────────────────────────────────
+/**
+ * MODULE: Frontend Logic & State Management
+ * This file handles the UI interactions, chat message processing, 
+ * and API communication for the Academic Advisor Chatbot.
+ */
+
+// MODULE: Application State
 let chatHistory = JSON.parse(localStorage.getItem("chat_history")) || [];
 let isLoading = false;
 
-// Load history on startup
+// Initializing the application and loading saved chat history
 window.onload = () => {
   if (chatHistory.length > 0) {
-    // Clear initial welcome if there is history
     const container = document.getElementById("chat-messages");
     container.innerHTML = "";
     
-    // Re-render history
     chatHistory.forEach(msg => {
       appendMessage(msg.role === "assistant" ? "bot" : "user", msg.content, false);
     });
-    
-    // Keep chips visible (removed hiding logic)
   }
 };
 
-// ── View Switching ─────────────────────────────────────────────────
+// MODULE: Navigation & View Switching
+// Handles switching between Chat, Appointment, and Quick Topics views
 function showView(viewName) {
   document.querySelectorAll(".view").forEach((v) => v.classList.remove("active"));
   document.querySelectorAll(".nav-btn").forEach((b) => b.classList.remove("active"));
@@ -27,7 +30,8 @@ function showView(viewName) {
   event.currentTarget.classList.add("active");
 }
 
-// ── Chat Functions ─────────────────────────────────────────────────
+// MODULE: Chat Input Processing
+// Handles keyboard events (Enter key)
 function handleKey(e) {
   if (e.key === "Enter" && !e.shiftKey) {
     e.preventDefault();
@@ -35,18 +39,20 @@ function handleKey(e) {
   }
 }
 
+// Automatically adjusts textarea height based on content
 function autoResize(el) {
   el.style.height = "auto";
   el.style.height = Math.min(el.scrollHeight, 120) + "px";
 }
 
+// Processes messages sent from quick chips or suggested chips
 function sendQuick(msg) {
   document.getElementById("user-input").value = msg;
   sendMessage();
 }
 
+// Switches to chat view and triggers a message
 function askTopic(msg) {
-  // Switch to chat view and send
   document.querySelectorAll(".view").forEach((v) => v.classList.remove("active"));
   document.querySelectorAll(".nav-btn").forEach((b) => b.classList.remove("active"));
   document.getElementById("view-chat").classList.add("active");
@@ -56,6 +62,8 @@ function askTopic(msg) {
   sendMessage();
 }
 
+// MODULE: Chat Engine (API Integration)
+// Orchestrates sending messages to the backend and handling responses
 async function sendMessage() {
   if (isLoading) return;
 
@@ -63,12 +71,12 @@ async function sendMessage() {
   const message = input.value.trim();
   if (!message) return;
 
-  // Check if user wants to book appointment
+  // Intercepting specific keywords for localized UI handling
   if (message.toLowerCase().includes("book appointment")) {
     appendMessage("user", message);
     appendMessage(
       "bot",
-      '📅 Sure! Click on <strong>"Book Appointment"</strong> in the sidebar to schedule a meeting with your faculty advisor.'
+      '📅 Sure! Click on <strong>"Book Appointment"</strong> in the sidebar to schedule a meeting.'
     );
     input.value = "";
     input.style.height = "auto";
@@ -79,9 +87,6 @@ async function sendMessage() {
   input.value = "";
   input.style.height = "auto";
 
-  // Keep quick chips visible (removed hiding logic)
-
-  // Show typing indicator
   const typingId = showTyping();
   isLoading = true;
   document.getElementById("send-btn").disabled = true;
@@ -100,23 +105,24 @@ async function sendMessage() {
     removeTyping(typingId);
 
     if (data.error) {
-      appendMessage("bot", "⚠️ Error: " + data.error);
+      appendMessage("bot", "⚠️ System Error: " + data.error);
     } else {
       appendMessage("bot", data.reply);
-      // Add to history
       chatHistory.push({ role: "user", content: message });
       chatHistory.push({ role: "assistant", content: data.reply });
       localStorage.setItem("chat_history", JSON.stringify(chatHistory));
     }
   } catch (err) {
     removeTyping(typingId);
-    appendMessage("bot", "⚠️ Could not connect to server. Make sure the server is running.");
+    appendMessage("bot", "⚠️ Connection failed. Please check your internet.");
   }
 
   isLoading = false;
   document.getElementById("send-btn").disabled = false;
 }
 
+// MODULE: UI Rendering Components
+// Appends messages to the chat interface and handles formatting
 function appendMessage(role, text, saveToHistory = true) {
   const container = document.getElementById("chat-messages");
 
@@ -133,10 +139,10 @@ function appendMessage(role, text, saveToHistory = true) {
   const bubble = document.createElement("div");
   bubble.className = "bubble";
   
-  // Extract suggested questions if any
   let mainText = text;
   let suggestions = [];
   
+  // Parsing suggested response chips from the bot's reply
   if (role === "bot") {
     const parts = text.split("[SUGGESTED]:");
     mainText = parts[0].trim();
@@ -148,7 +154,7 @@ function appendMessage(role, text, saveToHistory = true) {
   bubble.innerHTML = formatText(mainText);
   contentDiv.appendChild(bubble);
 
-  // Add suggested question chips
+  // Rendering suggestion chips
   if (suggestions.length > 0) {
     const suggestionsDiv = document.createElement("div");
     suggestionsDiv.className = "answer-suggestions";
@@ -170,6 +176,7 @@ function appendMessage(role, text, saveToHistory = true) {
   container.scrollTop = container.scrollHeight;
 }
 
+// Formats markdown-like syntax into HTML
 function formatText(text) {
   return text
     .replace(/\*\*(.*?)\*\*/g, "<strong>$1</strong>")
@@ -180,6 +187,8 @@ function formatText(text) {
     .replace(/\n/g, "<br>");
 }
 
+// MODULE: Visual Indicators
+// Shows a typing animation while the AI is processing
 function showTyping() {
   const container = document.getElementById("chat-messages");
   const id = "typing-" + Date.now();
@@ -209,6 +218,7 @@ function removeTyping(id) {
   if (el) el.remove();
 }
 
+// Resets the chat interface and history
 function clearChat() {
   chatHistory = [];
   localStorage.removeItem("chat_history");
@@ -220,46 +230,5 @@ function clearChat() {
         <p>Hello, What is your name ?</p>
       </div>
     </div>`;
-  document.getElementById("quick-chips").style.display = "flex";
 }
 
-// ── Appointment Booking ────────────────────────────────────────────
-async function bookAppointment() {
-  const name = document.getElementById("appt-name").value.trim();
-  const email = document.getElementById("appt-email").value.trim();
-  const date = document.getElementById("appt-date").value;
-  const time = document.getElementById("appt-time").value;
-  const reason = document.getElementById("appt-reason").value.trim();
-  const statusEl = document.getElementById("appt-status");
-
-  if (!name || !email || !date || !time || !reason) {
-    statusEl.className = "appt-status error";
-    statusEl.textContent = "⚠️ Please fill in all fields.";
-    return;
-  }
-
-  try {
-    const res = await fetch("/api/appointments", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ name, email, date, time, reason }),
-    });
-
-    const data = await res.json();
-
-    if (data.message) {
-      statusEl.className = "appt-status success";
-      statusEl.textContent = `✅ Appointment booked for ${date} at ${time}! Confirmation sent to ${email}.`;
-      // Clear form
-      ["appt-name", "appt-email", "appt-date", "appt-time", "appt-reason"].forEach(
-        (id) => (document.getElementById(id).value = "")
-      );
-    } else {
-      statusEl.className = "appt-status error";
-      statusEl.textContent = "⚠️ " + (data.error || "Something went wrong.");
-    }
-  } catch (err) {
-    statusEl.className = "appt-status error";
-    statusEl.textContent = "⚠️ Could not connect to server.";
-  }
-}

@@ -1,4 +1,12 @@
+/**
+ * MODULE: Knowledge Base (KB)
+ * This file serves as the primary data source for academic streams, 
+ * career paths, and suggested courses. It is used by the AI model 
+ * to provide structured and accurate guidance.
+ */
+
 const knowledgeBase = {
+  // Categorization of academic paths based on high school streams
   streams: {
     science: {
       name: "Science",
@@ -28,6 +36,7 @@ const knowledgeBase = {
       ]
     }
   },
+  // Global resources available for all students
   general_resources: [
     "Khan Academy for all levels",
     "Coursera for specialized certifications",
@@ -36,3 +45,4 @@ const knowledgeBase = {
 };
 
 module.exports = knowledgeBase;
+
